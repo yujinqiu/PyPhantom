@@ -21,22 +21,25 @@ class PyPhantomWeb(object):
 		return phantomGet(workdata["url"], workdata["screenshot"])
 
 def main(argv):
+	ip = ""
 	port = 0
 	try:
-		opts, args = getopt.getopt(argv, "hpj", ["port=", "phantomjs="])
+		opts, args = getopt.getopt(argv, "hipj", ["ip=", "port=", "phantomjs="])
 	except getopt.GetoptError:
-		print("PyPhantom --port=<Listen port, e.g. 80> --phantomjs=<PhantomJS startup command, e.g. phantomjs.cmd>")
+		print("PyPhantom --ip=<IP to listen on, e.g. 127.0.0.1> --port=<Port to listen on, e.g. 80> --phantomjs=<PhantomJS startup command, e.g. phantomjs.cmd>")
 		sys.exit(2)
 	for opt, arg in opts:
 		if opt == "-h":
-			print("PyPhantom --port=<Listen port, e.g. 80> --phantomjs=<PhantomJS startup command, e.g. phantomjs.cmd>")
+			print("PyPhantom --ip=<IP to listen on, e.g. 127.0.0.1> --port=<Port to listen on, e.g. 80> --phantomjs=<PhantomJS startup command, e.g. phantomjs.cmd>")
 			sys.exit()
+		elif opt in ("-i", "--ip"):
+			ip = arg
 		elif opt in ("-p", "--port"):
 			port = int(arg)
 		elif opt in ("-j", "--phantomjs"):
 			global phantomjs
 			phantomjs = arg
-	cherrypy.config.update({"server.socket_port": port})
+	cherrypy.config.update({"server.socket_port": port, "server.socket_host": ip})
 	cherrypy.quickstart(PyPhantomWeb(), "/", {"/":{"tools.gzip.on": True, "tools.encode.on": True, "tools.encode.encoding": "utf-8"}})
 
 def phantomGet(url, screenshot):
